@@ -1,0 +1,73 @@
+version: '3.7'
+
+services:
+  api:
+    build: ./api
+    restart: always
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+      - APP_ENV=dev
+      - MONGODB_DATABASE=mapper
+      - MONGODB_USERNAME=mapper
+      - MONGODB_PASSWORD=password
+      - MONGODB_HOSTNAME=db
+    expose:
+      - 8080
+    volumes:
+      - ./api:/api
+      - ./logs/api:/var/log/api
+    depends_on:
+      - db
+    networks:
+      - frontend
+      - backend
+  frontend:
+    build: ./frontend
+    restart: always
+    command: npm run serve-docker
+    volumes:
+      - ./frontend:/frontend
+    depends_on:
+      - api
+    expose:
+      - 8080
+    networks:
+      - frontend
+      - backend
+  nginx:
+    image: nginx
+    restart: always
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - ./conf/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - frontend
+      - backend
+  db:
+    image: mongo
+    restart: unless-stopped
+    command: mongod --auth
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=password
+      - MONGO_INITDB_DATABASE=mapper
+    volumes:
+      - ./conf/mongo/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - mongodbdata:/data/db
+    networks:
+      - backend
+volumes:
+  mongodbdata:
+networks:
+  frontend:
+    driver: bridge
+    name: frontend
+  backend:
+    internal: true
+    name: backend
