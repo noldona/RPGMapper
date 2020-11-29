@@ -1,6 +1,7 @@
 import logging
 
-from flask import request, jsonify
+from flask import request, jsonify, make_response
+from flask_cors import cross_origin
 
 from api.app import app, db
 
@@ -13,7 +14,7 @@ def index():
     return "Hello World!"
 
 
-@app.route('/campaigns/', methods=['GET'])
+@app.route('/api/campaigns/', methods=['GET'])
 def getCampaigns():
     _campaigns = db.campaigns.find()
 
@@ -32,9 +33,8 @@ def getCampaigns():
     )
 
 
-@app.route('/campaigns/', methods=['POST'])
+@app.route('/api/campaigns/', methods=['POST'])
 def addCampaign():
-    print(request)
     data = request.json
     item = {
         'name': data['name']
@@ -43,5 +43,21 @@ def addCampaign():
 
     return jsonify(
         status=True,
-        message='Card created!'
+        message='Campaign created!'
     ), 201
+
+
+@app.route('/api/login/', methods=['POST'])
+def login():
+    data = request.json
+    logger.debug(data)
+
+    return jsonify(
+        status=True,
+        message='Logged In!'
+    ), 200
+
+@app.after_request
+def add_headers(response):
+    response.headers['Content-Type'] = 'application/json'
+    return response

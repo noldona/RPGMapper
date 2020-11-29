@@ -1,61 +1,69 @@
 <template>
   <v-app>
+    <v-navigation-drawer app>
+      <!-- -->
+    </v-navigation-drawer>
+
     <v-app-bar
       app
       color="primary"
       dark
     >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
+      <v-switch
+        label="Toggle Dark Theme"
+        @change="toggleDarkTheme()"
+        class="switch-theme"
+      ></v-switch>
 
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+      <div class="d-flex align-center">
       </div>
 
       <v-spacer></v-spacer>
 
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+
+      <Login v-if="!loggedIn" />
+      <User v-else />
     </v-app-bar>
 
     <v-main>
       <HelloWorld/>
     </v-main>
+
+    <v-footer app>
+      Footer goes here
+    </v-footer>
   </v-app>
 </template>
+
+<style lang="scss">
+.switch-theme {
+	margin-top: 1rem !important;
+}
+</style>
 
 <script lang="ts">
 import Vue from 'vue';
 import HelloWorld from './components/HelloWorld.vue';
+import Login from './components/LoginForm.vue';
+import User from './components/User.vue';
 
 export default Vue.extend({
   name: 'App',
 
   components: {
     HelloWorld,
+    Login,
+    User
   },
 
   data: () => ({
-    //
+    loggedIn: false
   }),
+
+  methods: {
+    toggleDarkTheme() {
+      this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
+    }
+  }
 });
 </script>
